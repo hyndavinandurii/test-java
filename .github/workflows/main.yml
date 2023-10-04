@@ -1,4 +1,4 @@
-name: SonarQube Scan and Build JAR
+name: SonarQube-Scan and Build JAR
 
 on:
   # Trigger analysis when pushing to the main branch.
