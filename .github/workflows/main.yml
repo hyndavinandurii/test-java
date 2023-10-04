@@ -37,17 +37,17 @@ jobs:
         }
       shell: pwsh
 
+    - name: Change to repository root
+      run: cd $GITHUB_WORKSPACE
+
     - name: Compile Java code and create JAR
       run: |
-        # Change to repository root
-        cd $GITHUB_WORKSPACE
-
-        # Compile your Java code (assuming HelloWorld.java is in the root directory)
-        javac HelloWorld.java
-
-        # Create a JAR file
-        jar cfe HelloWorld.jar HelloWorld HelloWorld.class
-      shell: pwsh
+         # Change to the 'test-java' directory
+         cd test-java
+         # Compile your Java code
+         javac HelloWorld.java
+         # Create a JAR file
+         jar cfe HelloWorld.jar HelloWorld HelloWorld.class
 
     - name: SonarQube Scan
       run: |
