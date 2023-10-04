@@ -1,4 +1,4 @@
-name: SonarQube Scan
+name: SonarQube Scan and Build JAR
 
 on:
   # Trigger analysis when pushing to the main branch.
@@ -9,18 +9,19 @@ on:
 jobs:
   sonarqube:
     name: SonarQube Trigger
-    runs-on: windows-latest  # Change to 'windows-latest' to run on a Windows machine.
+    runs-on: windows-latest
+
     steps:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        ref: main  # Specify the branch you want to analyze.
+        ref: main
 
     - name: Set up Java
       uses: actions/setup-java@v2
       with:
-        java-version: 17  # Set to Java 17.
-        distribution: 'adopt'  # or 'temurin'
+        java-version: 17
+        distribution: 'adopt'
         architecture: x64
         check-latest: false
         server-id: github
@@ -35,16 +36,6 @@ jobs:
           Remove-Item -Path $HOME\.sonar -Force -Recurse
         }
       shell: pwsh
-
-    - name: Change to repository root
-      run: cd $GITHUB_WORKSPACE
-
-    - name: Compile Java code and create JAR
-      run: |
-         # Compile your Java code
-         javac HelloWorld.java
-         # Create a JAR file
-         jar cfe HelloWorld.jar HelloWorld HelloWorld.class
 
     - name: SonarQube Scan
       run: |
@@ -63,30 +54,20 @@ jobs:
     needs: sonarqube
 
     steps:
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'adopt'  # or 'temurin'
-        architecture: x64
-        check-latest: false
-        server-id: github
-        server-username: GITHUB_ACTOR
-        server-password: GITHUB_TOKEN
-        overwrite-settings: true
-        job-status: success
-
     - name: Checkout code
       uses: actions/checkout@v2
-  
 
-    - name: Build JAR
+    - name: Compile Java code and create JAR
       run: |
+        # Change to repository root
         cd $GITHUB_WORKSPACE
+
         # Compile your Java code
         javac HelloWorld.java
+
         # Create a JAR file
         jar cfe HelloWorld.jar HelloWorld HelloWorld.class
+
     - name: Upload JAR Artifact
       uses: actions/upload-artifact@v2
       with:
