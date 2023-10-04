@@ -27,7 +27,8 @@ jobs:
 
     - name: Delete SonarQube cache
       run: |
-        rm -rf $HOME/.sonar
+        Remove-Item -Path $HOME\.sonar -Force -Recurse
+      shell: pwsh
 
     - name: Set up Java
       uses: actions/setup-java@v2
