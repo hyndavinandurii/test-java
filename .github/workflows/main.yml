@@ -61,9 +61,35 @@ jobs:
   build_jar:
     runs-on: windows-latest
     needs: sonarqube
+
     steps:
-      - name: Upload JAR Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: HelloWorld-JAR
-          path: HelloWorld.jar
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'adopt'  # or 'temurin'
+        architecture: x64
+        check-latest: false
+        server-id: github
+        server-username: GITHUB_ACTOR
+        server-password: GITHUB_TOKEN
+        overwrite-settings: true
+        job-status: success
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        ref: dev
+
+    - name: Build JAR
+      run: |
+        cd $GITHUB_WORKSPACE
+        # Compile your Java code
+        javac HelloWorld.java
+        # Create a JAR file
+        jar cfe HelloWorld.jar HelloWorld HelloWorld.class
+    - name: Upload JAR Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: HelloWorld-JAR
+        path: HelloWorld.jar
