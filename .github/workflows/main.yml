@@ -41,11 +41,10 @@ jobs:
         # Run SonarScanner
         sonar-scanner-5.0.0.2966-windows/bin/sonar-scanner.bat
 
-    build_jar:
-     runs-on: windows-latest
-     needs: SonarQube Scan
-     steps:
-
+  build_jar:
+    runs-on: windows-latest
+    needs: sonarqube
+    steps:
       - name: Build JAR
         run: |
          cd $GITHUB_WORKSPACE
