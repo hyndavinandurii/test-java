@@ -41,13 +41,21 @@ jobs:
         # Run SonarScanner
         sonar-scanner-5.0.0.2966-windows/bin/sonar-scanner.bat
 
-        # Copy the generated JAR file to a specific location
-        mkdir -p ${{ github.workspace }}/artifacts  # Create an 'artifacts' directory
-        cp sonar-scanner-5.0.0.2966-windows/conf/*.jar ${{ github.workspace }}/artifacts/
-      
-      # Upload the JAR file as a workflow artifact
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: sonar_jar
-        path: ${{ github.workspace }}/artifacts/
+    build_jar:
+     runs-on: windows-latest
+     needs: SonarQube Scan
+     steps:
+
+      - name: Build JAR
+        run: |
+         cd $GITHUB_WORKSPACE
+         # Compile your Java code
+         javac HelloWorld.java
+         # Create a JAR file
+         jar cfe HelloWorld.jar HelloWorld HelloWorld.class
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: HelloWorld-JAR
+          path: HelloWorld.jar
+          
