@@ -1,0 +1,12 @@
+# Required metadata
+sonar.projectKey=test
+sonar.projectName=test
+sonar.projectVersion=1.0
+
+# Source code location
+sonar.sources=.
+
+# Language and encoding settings
+sonar.language=java
+sonar.java.source=1.8
+sonar.java.target=1.8
