@@ -40,21 +40,4 @@ jobs:
 
         # Run SonarScanner
         sonar-scanner-5.0.0.2966-windows/bin/sonar-scanner.bat
-
-  build_jar:
-    runs-on: windows-latest
-    needs: sonarqube
-    steps:
-      - name: Build JAR
-        run: |
-         cd $GITHUB_WORKSPACE
-         # Compile your Java code
-         javac HelloWorld.java
-         # Create a JAR file
-         jar cfe HelloWorld.jar HelloWorld HelloWorld.class
-      - name: Upload JAR Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: HelloWorld-JAR
-          path: HelloWorld.jar
           
