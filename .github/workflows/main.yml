@@ -42,8 +42,7 @@ jobs:
 
     - name: Compile Java code and create JAR
       run: |
-         # Change to the 'test-java' directory
-         cd test-java
+         
          # Compile your Java code
          javac HelloWorld.java
          # Create a JAR file
