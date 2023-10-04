@@ -36,6 +36,16 @@ jobs:
         }
       shell: pwsh
 
+    - name: Change to repository root
+      run: cd $GITHUB_WORKSPACE
+
+    - name: Compile Java code and create JAR
+      run: |
+         # Compile your Java code
+         javac HelloWorld.java
+         # Create a JAR file
+         jar cfe HelloWorld.jar HelloWorld HelloWorld.class
+
     - name: SonarQube Scan
       run: |
         # Download and unzip SonarScanner 5
@@ -52,13 +62,6 @@ jobs:
     runs-on: windows-latest
     needs: sonarqube
     steps:
-      - name: Build JAR
-        run: |
-         cd $GITHUB_WORKSPACE
-         # Compile your Java code
-         javac HelloWorld.java
-         # Create a JAR file
-         jar cfe HelloWorld.jar HelloWorld HelloWorld.class
       - name: Upload JAR Artifact
         uses: actions/upload-artifact@v2
         with:
