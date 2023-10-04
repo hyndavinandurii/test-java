@@ -37,6 +37,18 @@ jobs:
         }
       shell: pwsh
 
+    - name: SonarQube Scan
+      run: |
+        # Download and unzip SonarScanner 5
+        curl -sSL "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.0.2966-windows.zip" -o sonar-scanner.zip
+        Expand-Archive -Path sonar-scanner.zip -DestinationPath .
+        # Configure SonarScanner properties (adjust as needed)
+        echo "sonar.host.url=${{ secrets.SONAR_HOST_URL }}" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
+        echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
+        echo "sonar.projectKey=test" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
+        # Run SonarScanner
+        sonar-scanner-5.0.0.2966-windows/bin/sonar-scanner.bat
+
     - name: Change to repository root
       run: cd $GITHUB_WORKSPACE
 
