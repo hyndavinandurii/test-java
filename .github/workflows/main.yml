@@ -37,6 +37,18 @@ jobs:
         }
       shell: pwsh
 
+    - name: Compile Java code and create JAR
+      run: |
+        # Change to repository root
+        cd $GITHUB_WORKSPACE
+
+        # Compile your Java code (assuming HelloWorld.java is in the root directory)
+        javac HelloWorld.java
+
+        # Create a JAR file
+        jar cfe HelloWorld.jar HelloWorld HelloWorld.class
+      shell: pwsh
+
     - name: SonarQube Scan
       run: |
         # Download and unzip SonarScanner 5
@@ -48,28 +60,3 @@ jobs:
         echo "sonar.projectKey=test" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
         # Run SonarScanner
         sonar-scanner-5.0.0.2966-windows/bin/sonar-scanner.bat
-
-  build_jar:
-    runs-on: windows-latest
-    needs: sonarqube
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Compile Java code and create JAR
-      run: |
-        # Change to repository root
-        cd $GITHUB_WORKSPACE
-
-        # Compile your Java code
-        javac HelloWorld.java
-
-        # Create a JAR file
-        jar cfe HelloWorld.jar HelloWorld HelloWorld.class
-
-    - name: Upload JAR Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: HelloWorld-JAR
-        path: HelloWorld.jar
