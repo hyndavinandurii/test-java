@@ -1,0 +1,52 @@
+name: SonarQube Scan
+on:
+  # Trigger analysis when pushing to the main branch.
+  push:
+    branches:
+      - main
+jobs:
+  sonarqube:
+    name: SonarQube Trigger
+    runs-on: windows-latest  # Change to 'windows-latest' to run on a Windows machine.
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: main  # Specify the branch you want to analyze.
+
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: 17  # Set to Java 17.
+        distribution: 'adopt'  # or 'temurin'
+        architecture: x64
+        check-latest: false
+        server-id: github
+        server-username: GITHUB_ACTOR
+        server-password: GITHUB_TOKEN
+        overwrite-settings: true
+        job-status: success
+
+    - name: SonarQube Scan
+      run: |
+        # Download and unzip SonarScanner 5
+        curl -sSL "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.0.2966-windows.zip" -o sonar-scanner.zip
+        Expand-Archive -Path sonar-scanner.zip -DestinationPath .
+
+        # Configure SonarScanner properties (adjust as needed)
+        echo "sonar.host.url=${{ secrets.SONAR_HOST_URL }}" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
+        echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
+
+        # Run SonarScanner
+        sonar-scanner-5.0.0.2966-windows/bin/sonar-scanner.bat
+
+        # Copy the generated JAR file to a specific location
+        mkdir -p ${{ github.workspace }}/artifacts  # Create an 'artifacts' directory
+        cp sonar-scanner-5.0.0.2966-windows/conf/*.jar ${{ github.workspace }}/artifacts/
+      
+      # Upload the JAR file as a workflow artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: sonar_jar
+        path: ${{ github.workspace }}/artifacts/
