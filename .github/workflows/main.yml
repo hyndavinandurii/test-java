@@ -16,20 +16,6 @@ jobs:
       with:
         ref: main  # Specify the branch you want to analyze.
 
-    - name: Debug Info
-      run: |
-        # Print the values of your secrets for debugging
-        echo "SONAR_HOST_URL=${{ secrets.SONAR_HOST_URL }}"
-        echo "SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}"
-      env:
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-    - name: Delete SonarQube cache
-      run: |
-        Remove-Item -Path $HOME\.sonar -Force -Recurse
-      shell: pwsh
-
     - name: Set up Java
       uses: actions/setup-java@v2
       with:
@@ -43,6 +29,13 @@ jobs:
         overwrite-settings: true
         job-status: success
 
+    - name: Delete SonarQube cache
+      run: |
+        if (Test-Path $HOME\.sonar) {
+          Remove-Item -Path $HOME\.sonar -Force -Recurse
+        }
+      shell: pwsh
+
     - name: SonarQube Scan
       run: |
         # Download and unzip SonarScanner 5
@@ -52,5 +45,22 @@ jobs:
         echo "sonar.host.url=${{ secrets.SONAR_HOST_URL }}" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
         echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
         echo "sonar.projectKey=test" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
-        # Run SonarScanner with debug output
-        sonar-scanner-5.0.0.2966-windows/bin/sonar-scanner.bat -X
+        # Run SonarScanner
+        sonar-scanner-5.0.0.2966-windows/bin/sonar-scanner.bat
+
+  build_jar:
+    runs-on: windows-latest
+    needs: sonarqube
+    steps:
+      - name: Build JAR
+        run: |
+         cd $GITHUB_WORKSPACE
+         # Compile your Java code
+         javac HelloWorld.java
+         # Create a JAR file
+         jar cfe HelloWorld.jar HelloWorld HelloWorld.class
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: HelloWorld-JAR
+          path: HelloWorld.jar
