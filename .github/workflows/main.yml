@@ -64,3 +64,10 @@ jobs:
       with:
         name: HelloWorld-JAR  # Name of the artifact
         path: HelloWorld.jar  # Path to the JAR file
+
+    - name: Download JAR from SonarQube
+      run: |
+        # Replace with the actual URL of the JAR file provided by SonarQube
+        curl -sSL -o sonarqube.jar "https://9c41-183-82-1-156.ngrok-free.app/dashboard?id=test"
+      # Optionally, you can rename the downloaded JAR file if needed
+      shell: pwsh
