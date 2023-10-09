@@ -132,7 +132,11 @@ jobs:
 
       - name: Upload JAR to Artifactory
         run: |
-          ARTIFACTORY_API_KEY="${{ secrets.ARTIFACTORY_API_KEY }}"
-          ARTIFACTORY_URL="https://hyndavi.jfrog.io/ui/admin/repositories/local/my-java-repo/"
-          curl -uapikey:${ARTIFACTORY_API_KEY} \
-          -T HelloWorld.jar "${ARTIFACTORY_URL}/."
+          ARTIFACTORY_USERNAME="${{ secrets.ARTIFACTORY_USERNAME }}"
+          ARTIFACTORY_PASSWORD="${{ secrets.ARTIFACTORY_PASSWORD }}"
+          ARTIFACTORY_URL="https://hyndavi.jfrog.io/ui/repos/tree/General/my-java-repo"
+    
+           # Use HTTP Basic Authentication with username and password
+          curl -u "${ARTIFACTORY_USERNAME}:${ARTIFACTORY_PASSWORD}" \
+           -T HelloWorld.jar "${ARTIFACTORY_URL}/."
+
