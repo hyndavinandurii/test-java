@@ -9,7 +9,7 @@ on:
 jobs:
   sonarqube:
     name: SonarQube Trigger
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
@@ -23,31 +23,26 @@ jobs:
         java-version: 17
         distribution: 'adopt'
         architecture: x64
-        check-latest: false
-        server-id: github
-        server-username: GITHUB_ACTOR
-        server-password: GITHUB_TOKEN
-        overwrite-settings: true
-        job-status: success
 
     - name: Delete SonarQube cache
       run: |
-        if (Test-Path $HOME\.sonar) {
-          Remove-Item -Path $HOME\.sonar -Force -Recurse
-        }
-      shell: pwsh
+        if [ -d $HOME/.sonar ]; then
+          rm -rf $HOME/.sonar
+        fi
 
     - name: SonarQube Scan
       run: |
         # Download and unzip SonarScanner 5
-        curl -sSL "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.0.2966-windows.zip" -o sonar-scanner.zip
-        Expand-Archive -Path sonar-scanner.zip -DestinationPath .
+        curl -sSL "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.0.2966-linux.zip" -o sonar-scanner.zip
+        unzip sonar-scanner.zip -d .
+
         # Configure SonarScanner properties (adjust as needed)
-        echo "sonar.host.url=${{ secrets.SONAR_HOST_URL }}" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
-        echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
-        echo "sonar.projectKey=test" >> sonar-scanner-5.0.0.2966-windows/conf/sonar-scanner.properties
+        echo "sonar.host.url=${{ secrets.SONAR_HOST_URL }}" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
+        echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
+        echo "sonar.projectKey=test" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
+
         # Run SonarScanner
-        sonar-scanner-5.0.0.2966-windows/bin/sonar-scanner.bat
+        ./sonar-scanner-5.0.0.2966-linux/bin/sonar-scanner
 
     - name: Change to repository root
       run: cd $GITHUB_WORKSPACE
@@ -70,4 +65,3 @@ jobs:
         # Replace with the actual URL of the JAR file provided by SonarQube
         curl -sSL -o sonarqube.jar "https://9c41-183-82-1-156.ngrok-free.app/dashboard?id=test"
       # Optionally, you can rename the downloaded JAR file if needed
-      shell: pwsh
