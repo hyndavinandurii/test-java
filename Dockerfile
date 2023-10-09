@@ -1,5 +1,4 @@
-# Use an official OpenJDK Windows image as a parent image
-FROM adoptopenjdk/openjdk11:windows
+FROM adoptopenjdk/openjdk11:latest
 
 # Set the working directory in the container
 WORKDIR /app
