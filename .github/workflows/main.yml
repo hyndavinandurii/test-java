@@ -134,7 +134,7 @@ jobs:
         run: |
           ARTIFACTORY_USERNAME="${{ secrets.ARTIFACTORY_USERNAME }}"
           ARTIFACTORY_PASSWORD="${{ secrets.ARTIFACTORY_PASSWORD }}"
-          ARTIFACTORY_URL="https://hyndavi.jfrog.io/ui/repos/tree/General/my-java-repo"
+          ARTIFACTORY_URL="https://hyndavi.jfrog.io/artifactory/my-java-repo/"
     
            # Use HTTP Basic Authentication with username and password
           curl -u "${ARTIFACTORY_USERNAME}:${ARTIFACTORY_PASSWORD}" \
