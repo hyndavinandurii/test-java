@@ -35,14 +35,18 @@ jobs:
         # Download and unzip SonarScanner 5
         curl -sSL "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.0.2966-linux.zip" -o sonar-scanner.zip
         unzip sonar-scanner.zip -d .
-
         # Configure SonarScanner properties (adjust as needed)
         echo "sonar.host.url=${{ secrets.SONAR_HOST_URL }}" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
         echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
         echo "sonar.projectKey=test" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
 
-        # Run SonarScanner
-        ./sonar-scanner-5.0.0.2966-linux/bin/sonar-scanner
+        # Run SonarScanner and handle errors
+        if ./sonar-scanner-5.0.0.2966-linux/bin/sonar-scanner; then
+          echo "SonarQube analysis completed successfully."
+        else
+          echo "SonarQube analysis failed."
+          exit 1
+        fi
 
     - name: Change to repository root
       run: cd $GITHUB_WORKSPACE
@@ -65,6 +69,7 @@ jobs:
         # Replace with the actual URL of the JAR file provided by SonarQube
         curl -sSL -o sonarqube.jar "https://9c41-183-82-1-156.ngrok-free.app/dashboard?id=test"
       # Optionally, you can rename the downloaded JAR file if needed
+
   build:
     name: Build and Push Docker Image
     needs: sonarqube
@@ -78,14 +83,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y upgrade
+
       - name: Remove conflicting packages
         run: |
           sudo apt-get remove -y containerd.io
+
       - name: Install Docker
         run: |
           sudo apt-get install -y docker.io
           sudo systemctl start docker
           sudo systemctl enable docker
+
       - name: Verify AWS CLI
         run: aws --version
 
@@ -109,10 +117,12 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 390067525135.dkr.ecr.ap-south-1.amazonaws.com
+
       - name: Push Docker image to ECR
         run: |
           docker tag my-java-app:latest 390067525135.dkr.ecr.ap-south-1.amazonaws.com/my-java-app:v1
           docker push 390067525135.dkr.ecr.ap-south-1.amazonaws.com/my-java-app:v1
+
       - name: Install Cosign
         run: |
          # Install Cosign
@@ -129,7 +139,6 @@ jobs:
          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
-
       - name: Upload JAR to Artifactory
         run: |
           ARTIFACTORY_USERNAME="${{ secrets.ARTIFACTORY_USERNAME }}"
@@ -139,4 +148,3 @@ jobs:
            # Use HTTP Basic Authentication with username and password
           curl -u "${ARTIFACTORY_USERNAME}:${ARTIFACTORY_PASSWORD}" \
            -T HelloWorld.jar "${ARTIFACTORY_URL}/HelloWorld.jar"
-
