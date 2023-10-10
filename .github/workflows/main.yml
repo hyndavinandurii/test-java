@@ -138,5 +138,5 @@ jobs:
     
            # Use HTTP Basic Authentication with username and password
           curl -u "${ARTIFACTORY_USERNAME}:${ARTIFACTORY_PASSWORD}" \
-           -T HelloWorld.jar "${ARTIFACTORY_URL}/."
+           -T HelloWorld.jar "${ARTIFACTORY_URL}/HelloWorld.jar"
 
