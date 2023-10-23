@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: openjdk11
+  pre_build:
+    commands:
+      - echo "Running pre-build phase"
+  build:
+    commands:
+      - echo "Running build phase"
+      - javac HelloWorld.java
+      - docker build -t my-java-app .
+  post_build:
+    commands:
+      - echo "Running post-build phase"
+artifacts:
+  files:
+    - HelloWorld.class
