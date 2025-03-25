@@ -26,18 +26,6 @@ jobs:
           rm -rf $HOME/.sonar
         fi
 
-
-    - name: Configure SonarQube Properties
-      run: |
-        echo "sonar.projectKey=test" >> sonar-project.properties
-        echo "sonar.projectName=test" >> sonar-project.properties
-        echo "sonar.projectVersion=1.0" >> sonar-project.properties
-        echo "sonar.sources=." >> sonar-project.properties
-        echo "sonar.java.binaries=target/classes" >> sonar-project.properties
-        echo "sonar.language=java" >> sonar-project.properties
-        echo "sonar.java.source=1.8" >> sonar-project.properties
-        echo "sonar.java.target=1.8" >> sonar-project.properties
-
     - name: Run SonarQube Scan
       run: |
         curl -sSL "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.0.2966-linux.zip" -o sonar-scanner.zip
@@ -46,27 +34,8 @@ jobs:
         echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
         ./sonar-scanner-5.0.0.2966-linux/bin/sonar-scanner
 
-  build:
-    name: Build Application
-    needs: sonarqube
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v2
-
-    - name: Set up Java
-      uses: actions/setup-java@v2
-      with:
-        java-version: 17
-        distribution: adopt
-
-    - name: Build and Package Application
-      run: mvn clean install -DskipTests
-
   docker:
     name: Dockerize and Run Application
-    needs: build
     runs-on: ubuntu-latest
 
     steps:
