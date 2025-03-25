@@ -1,5 +1,5 @@
 # Required metadata
-sonar.projectKey=test
+sonar.projectKey=my-project-key
 sonar.projectName=test
 sonar.projectVersion=1.0
 
