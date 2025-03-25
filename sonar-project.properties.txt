@@ -10,3 +10,6 @@ sonar.sources=.
 sonar.language=java
 sonar.java.source=1.8
 sonar.java.target=1.8
+
+# Path to compiled Java classes
+sonar.java.binaries=target/classes
