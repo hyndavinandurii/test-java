@@ -1,4 +1,4 @@
-name: SonarQube-Static Analysis
+name: SonarQube Analysis, Build, and Deploy
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   sonarqube:
-    name: SonarQube Analysis
+    name: SonarQube Static Analysis
     runs-on: ubuntu-latest
 
     steps:
@@ -18,8 +18,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: 17
-        distribution: 'adopt'
-        architecture: x64
+        distribution: adopt
 
     - name: Delete SonarQube Cache
       run: |
@@ -27,16 +26,29 @@ jobs:
           rm -rf $HOME/.sonar
         fi
 
-    - name: SonarQube Scan
+    - name: Build the Project
+      run: mvn clean install -DskipTests
+
+    - name: Verify Build Output
+      run: ls -R target
+
+    - name: Configure SonarQube Properties
       run: |
-        # Download and unzip SonarScanner
+        echo "sonar.projectKey=test" >> sonar-project.properties
+        echo "sonar.projectName=test" >> sonar-project.properties
+        echo "sonar.projectVersion=1.0" >> sonar-project.properties
+        echo "sonar.sources=." >> sonar-project.properties
+        echo "sonar.java.binaries=target/classes" >> sonar-project.properties
+        echo "sonar.language=java" >> sonar-project.properties
+        echo "sonar.java.source=1.8" >> sonar-project.properties
+        echo "sonar.java.target=1.8" >> sonar-project.properties
+
+    - name: Run SonarQube Scan
+      run: |
         curl -sSL "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.0.2966-linux.zip" -o sonar-scanner.zip
         unzip sonar-scanner.zip -d .
-        # Configure SonarScanner properties
         echo "sonar.host.url=${{ secrets.SONAR_HOST_URL }}" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
         echo "sonar.login=${{ secrets.SONAR_TOKEN }}" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
-        echo "sonar.projectKey=my-java-project" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
-        echo "sonar.java.binaries=target/classes" >> sonar-scanner-5.0.0.2966-linux/conf/sonar-scanner.properties
         ./sonar-scanner-5.0.0.2966-linux/bin/sonar-scanner
 
   build:
@@ -52,8 +64,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: 17
-        distribution: 'adopt'
-        architecture: x64
+        distribution: adopt
 
     - name: Build and Package Application
       run: mvn clean install -DskipTests
@@ -77,13 +88,11 @@ jobs:
     - name: Build Docker Image
       run: docker build -t my-java-app .
 
-    - name: Run Docker Container
-      run: |
-        docker run -d -p 8081:8080 --name my-java-app my-java-app
+    - name: Run Docker Container on Port 8081
+      run: docker run -d -p 8081:8080 --name my-java-app my-java-app
 
     - name: Verify Application is Running
       run: docker ps
 
     - name: Print Access URL
       run: echo "Application is running on http://localhost:8081"
-
